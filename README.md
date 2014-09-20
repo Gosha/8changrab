@@ -18,5 +18,4 @@ This is easily done with pip or easy_install:
 
 ###Usage:
 
-Usage is simple, just run `./dl.py` on GNU/Linux or run `python dl.py` which works on most platforms with
-python2.7 installed
+Syntax is `./dl.py [thread url]` on GNU/Linux. On all platforms `python dl.py [thread url]` works.
