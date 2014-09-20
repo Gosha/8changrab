@@ -1,11 +1,10 @@
 #!/usr/bin/python
 
-import sys, os, urllib2, string
+import sys, os, urllib2, string, shutil
 from bs4 import BeautifulSoup
 from os.path import expanduser
 
 url 	 =	sys.argv[1]
-location =	sys.argv[2]
 hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
        }
@@ -17,13 +16,19 @@ req = urllib2.Request(url, headers=hdr)
 page = urllib2.urlopen(req).read()
 
 soup = BeautifulSoup(page)
-
-sub = soup.find_all(attrs={"class": "subject"})
-sub = str(sub)
-sub = BeautifulSoup(sub)
-topic = sub.span.string
-os.makedirs('%s/8chan/%s' %(home, topic))
-
+try:
+	sub = soup.find_all(attrs={"class": "subject"})
+	sub = str(sub)
+	sub = BeautifulSoup(sub)
+	topic = sub.span.string
+except:
+	topic = raw_input('Please specify folder name: ')
+	
+if not os.path.exists('%s/8chan/%s' %(home, topic)):
+	os.makedirs('%s/8chan/%s' %(home, topic))
+else:
+	shutil.rmtree('%s/8chan/%s' %(home, topic))
+	os.makedirs('%s/8chan/%s' %(home, topic))
 
 img = soup.find_all(attrs={"class": "fileinfo"})
 img = str(img)
@@ -31,6 +36,8 @@ img = str(img)
 soup = BeautifulSoup(img)
 img = soup.find_all('a')
 
+pipe = '|'
+progress = ""
 for link in soup.find_all('a'):
 		fileinfo = link.get('href')
 		dl = 'http://8chan.co%s' % fileinfo
@@ -40,6 +47,6 @@ for link in soup.find_all('a'):
 		fh = open('%s/8chan/%s/%s' %(home, topic, name), "wb")
 		fh.write(response.read())
 		fh.close()
-		
-
-print "%s, %s" %(url, location)
+		progress += "|"
+		print progress
+print "%s" % url
