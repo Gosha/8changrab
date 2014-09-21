@@ -9,14 +9,13 @@ hdr = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML,
        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
        }
 home = expanduser("~")
-
 if not os.path.exists('%s/8chan' % home):
 	os.makedirs('%s/8chan' % home)
        
 req = urllib2.Request(url, headers=hdr)
 page = urllib2.urlopen(req).read()
-soup = BeautifulSoup(page)
 
+soup = BeautifulSoup(page)
 try:
 	sub = soup.find_all(attrs={"class": "subject"})
 	sub = str(sub)
