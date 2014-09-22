@@ -10,7 +10,7 @@ This is easily done with pip or easy_install:
 
 ######For Pip:
 
-`pip install beautifulsoup4'`
+`pip install beautifulsoup4`
 
 #####For Easy_install:
 
