@@ -4,15 +4,29 @@ from __future__ import print_function
 import sys, os, urllib2, shutil
 from bs4 import BeautifulSoup
 from os.path import expanduser
+
 try:
     from blessings import Terminal
     def update_progress(current, total):
+        """Create a pretty progress bar by constantly updating one line"""
+        progress_bar_length = 40
+
+        percent_finished = current/float(total) # 0 -> 1
+
+        fillers = int(percent_finished * progress_bar_length)
+        empty_fillers = progress_bar_length - fillers
+
+        progress_bar = "["
+        progress_bar += fillers*"="
+        progress_bar += ">"
+        progress_bar += empty_fillers*" "
+        progress_bar += "]"
+
         term = Terminal()
         with term.location(x=0):
-            print("{}/{}".format(current, total), end="")
+            print("{} {}/{}".format(progress_bar, current, total), end="")
         sys.stdout.flush()
-except Exception as e:
-    print(e)
+except ImportError:
     def update_progress(current, total):
         """Simple update progress"""
         sys.stdout.write("|")
