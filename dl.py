@@ -17,6 +17,7 @@ def download_image(link, filename):
         _file.close()
 
 def main(argv):
+    """Usage: dl.py THREAD"""
     url = argv[1]
     home = expanduser("~")
 
