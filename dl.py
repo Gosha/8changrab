@@ -24,12 +24,10 @@ def main(argv):
     page = urllib2.urlopen(req).read()
     soup = BeautifulSoup(page)
 
-    try:
-        sub = soup.find_all(attrs={"class": "subject"})
-        sub = str(sub)
-        sub = BeautifulSoup(sub)
-        topic = sub.span.string
-    except:
+    subject = soup.find(attrs={"class": "subject"})
+    if subject:
+        topic = subject.string
+    else:
         topic = raw_input('Please specify folder name: ')
 
     if not os.path.exists('%s/8chan/%s' %(home, topic)):
