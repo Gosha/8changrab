@@ -16,6 +16,9 @@ This is easily done with pip or easy_install:
 
 `easy_install beautifulsoup4`
 
+To get a fancy progress bar you also need to install the `blessings`
+module with the same procedure.
+
 ###Usage:
 
 Syntax is `./dl.py [thread url]` on GNU/Linux. On all platforms `python dl.py [thread url]` works.
