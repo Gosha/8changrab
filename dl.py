@@ -46,7 +46,13 @@ def download_image(link, filename):
 
 def main(argv):
     """Usage: dl.py THREAD"""
-    url = argv[1]
+    try:
+        url = argv[1]
+    except:
+        print ("No URL supplied")
+        print ("Usage: %s [Thread URL]" % argv[0])
+        return 1
+
     home = expanduser("~")
 
     if not os.path.exists('%s/8chan' % home):
