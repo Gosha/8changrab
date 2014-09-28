@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import sys, os, urllib2, shutil
 from bs4 import BeautifulSoup
