@@ -38,23 +38,21 @@ def main(argv):
         shutil.rmtree('%s/8chan/%s' %(home, topic))
         os.makedirs('%s/8chan/%s' %(home, topic))
 
-    img = soup.find_all(attrs={"class": "fileinfo"})
-    img = str(img)
-
-    soup = BeautifulSoup(img)
+    fileinfos = soup.find_all(attrs={"class": "fileinfo"})
 
     progress = ""
-    for link in soup.find_all('a'):
-        fileinfo = link.get('href')
-        dl = 'https://8chan.co%s' % fileinfo
-        name = link.string
-        req = urllib2.Request(dl, headers=HDR)
-        response = urllib2.urlopen(req)
-        fh = open('%s/8chan/%s/%s' %(home, topic, name), "wb")
-        fh.write(response.read())
-        fh.close()
-        progress += "|"
-        print progress
+    for fileinfo in fileinfos:
+        for link in fileinfo.find_all('a'):
+            fileinfo = link.get('href')
+            dl = 'https://8chan.co%s' % fileinfo
+            name = link.string
+            req = urllib2.Request(dl, headers=HDR)
+            response = urllib2.urlopen(req)
+            fh = open('%s/8chan/%s/%s' %(home, topic, name), "wb")
+            fh.write(response.read())
+            fh.close()
+            progress += "|"
+            print progress
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
