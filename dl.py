@@ -38,11 +38,13 @@ def main(argv):
     else:
         topic = raw_input('Please specify folder name: ')
 
-    if not os.path.exists('%s/8chan/%s' %(home, topic)):
-        os.makedirs('%s/8chan/%s' %(home, topic))
+    download_path = '%s/8chan/%s' % (home, topic)
+
+    if not os.path.exists(download_path):
+        os.makedirs(download_path)
     else:
-        shutil.rmtree('%s/8chan/%s' %(home, topic))
-        os.makedirs('%s/8chan/%s' %(home, topic))
+        shutil.rmtree(download_path)
+        os.makedirs(download_path)
 
     fileinfos = soup.find_all(attrs={"class": "fileinfo"})
 
@@ -51,8 +53,8 @@ def main(argv):
         for link in fileinfo.find_all('a'):
             fileinfo = link.get('href')
             download_link = 'https://8chan.co%s' % fileinfo
-            download_image(download_link, '%s/8chan/%s/%s'
-                           %(home, topic, link.string))
+            download_image(download_link, '%s/%s'
+                           %(download_path, link.string))
             progress += "|"
             print progress
 
