@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, os, urllib2, string, shutil
+import sys, os, urllib2, shutil
 from bs4 import BeautifulSoup
 from os.path import expanduser
 
@@ -42,7 +42,6 @@ def main(argv):
     img = str(img)
 
     soup = BeautifulSoup(img)
-    img = soup.find_all('a')
 
     progress = ""
     for link in soup.find_all('a'):
