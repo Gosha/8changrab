@@ -1,8 +1,22 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys, os, urllib2, shutil
 from bs4 import BeautifulSoup
 from os.path import expanduser
+try:
+    from blessings import Terminal
+    def update_progress(current, total):
+        term = Terminal()
+        with term.location(x=0):
+            print("{}/{}".format(current, total), end="")
+        sys.stdout.flush()
+except Exception as e:
+    print(e)
+    def update_progress(current, total):
+        """Simple update progress"""
+        sys.stdout.write("|")
+        sys.stdout.flush()
 
 HDR = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -25,7 +39,7 @@ def main(argv):
         os.makedirs('%s/8chan' % home)
 
     if not "8chan.co" in url:
-        print "Not an 8chan URL"
+        print("Not an 8chan URL")
         return 1
 
     req = urllib2.Request(url, headers=HDR)
@@ -47,17 +61,17 @@ def main(argv):
         os.makedirs(download_path)
 
     fileinfos = soup.find_all(attrs={"class": "fileinfo"})
-
-    progress = ""
+    fileinfos_count = len(fileinfos)
+    current_fileinfo = 1
     for fileinfo in fileinfos:
         for link in fileinfo.find_all('a'):
             fileinfo = link.get('href')
             download_link = 'https://8chan.co%s' % fileinfo
             download_image(download_link, '%s/%s'
                            %(download_path, link.string))
-            progress += "|"
-            print progress
-
+            update_progress(current_fileinfo, fileinfos_count)
+        current_fileinfo += 1
+    print()
     return 0
 
 if __name__ == "__main__":
