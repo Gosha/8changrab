@@ -1,12 +1,25 @@
 #!/usr/bin/env python
+"""Usage: dl.py [-h|--help] [-s SUBJECT] [-d SAVEPATH] THREAD
 
+-d --directory SAVEPATH  Save images to a directory in SAVEPATH
+-s --subject SUBJECT     If set, don't ask for folder name, but directly save
+                         in SUBJECT. If not set 8changrab tries the subject
+                         of the thread, and asks otherwise.
+
+-h --help     Show this
+-v --version  Show version
+"""
 from __future__ import print_function
 import sys, os, urllib2, shutil
+from docopt import docopt
+from blessings import Terminal
 from bs4 import BeautifulSoup
 from os.path import expanduser
+VERSION = "8changrab 0.1"
+DEFAULT_SAVE_PATH = '{}/8chan'.format(expanduser("~"))
 
-try:
-    from blessings import Terminal
+TERM = Terminal()
+if TERM.is_a_tty:
     def update_progress(current, total):
         """Create a pretty progress bar by constantly updating one line"""
         progress_bar_length = 40
@@ -26,7 +39,8 @@ try:
         with term.location(x=0):
             print("{} {}/{}".format(progress_bar, current, total), end="")
         sys.stdout.flush()
-except ImportError:
+else:
+    # Use dumb output on non-tty
     def update_progress(current, total):
         """Simple update progress"""
         sys.stdout.write("|")
@@ -45,40 +59,41 @@ def download_image(link, filename):
         _file.close()
 
 def main(argv):
-    """Usage: dl.py THREAD"""
-    try:
-        url = argv[1]
-    except:
-        print ("No URL supplied")
-        print ("Usage: %s [Thread URL]" % argv[0])
-        return 1
+    """Grabs images from an 8chan thread"""
+    args = docopt(__doc__, argv=argv[1:], version=VERSION)
 
-    home = expanduser("~")
-
-    if not os.path.exists('%s/8chan' % home):
-        os.makedirs('%s/8chan' % home)
+    url = args['THREAD']
+    savepath = args['--directory'] or DEFAULT_SAVE_PATH
 
     if not "8chan.co" in url:
         print("Not an 8chan URL")
         return 1
 
+    if not os.path.exists(savepath):
+        os.makedirs(savepath)
+
     req = urllib2.Request(url, headers=HDR)
     page = urllib2.urlopen(req).read()
     soup = BeautifulSoup(page)
 
-    subject = soup.find(attrs={"class": "subject"})
-    if subject:
-        topic = subject.string
+    if args['--subject']:
+        topic = args['--subject']
     else:
-        topic = raw_input('Please specify folder name: ')
+        subject = soup.find(attrs={"class": "subject"})
+        if subject:
+            topic = subject.string
+        else:
+            topic = raw_input('Please specify folder name: ')
 
-    download_path = '%s/8chan/%s' % (home, topic)
+    download_path = '{}/{}'.format(savepath, topic)
 
     if not os.path.exists(download_path):
         os.makedirs(download_path)
     else:
         shutil.rmtree(download_path)
         os.makedirs(download_path)
+
+    print("Downloading to {}".format(download_path))
 
     fileinfos = soup.find_all(attrs={"class": "fileinfo"})
     fileinfos_count = len(fileinfos)
