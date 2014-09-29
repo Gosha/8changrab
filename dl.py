@@ -13,7 +13,6 @@ from __future__ import print_function
 import sys
 import os
 import urllib2
-import shutil
 from docopt import docopt
 from blessings import Terminal
 from bs4 import BeautifulSoup
