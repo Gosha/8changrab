@@ -12,13 +12,14 @@
 from __future__ import print_function
 import sys, os, urllib2, shutil
 from docopt import docopt
+from blessings import Terminal
 from bs4 import BeautifulSoup
 from os.path import expanduser
 VERSION = "8changrab 0.1"
 DEFAULT_SAVE_PATH = '{}/8chan'.format(expanduser("~"))
 
-try:
-    from blessings import Terminal
+TERM = Terminal()
+if TERM.is_a_tty:
     def update_progress(current, total):
         """Create a pretty progress bar by constantly updating one line"""
         progress_bar_length = 40
@@ -38,7 +39,8 @@ try:
         with term.location(x=0):
             print("{} {}/{}".format(progress_bar, current, total), end="")
         sys.stdout.flush()
-except ImportError:
+else:
+    # Use dumb output on non-tty
     def update_progress(current, total):
         """Simple update progress"""
         sys.stdout.write("|")
