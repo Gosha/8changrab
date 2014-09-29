@@ -51,7 +51,10 @@ HDR = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML,
     }
 
 def download_image(link, filename):
-    """Download LINK to FILENAME"""
+    """Download LINK to FILENAME if FILENAME doesn't already exist"""
+    if os.path.exists(filename):
+        return
+
     req = urllib2.Request(link, headers=HDR)
     response = urllib2.urlopen(req)
     with open(filename, "wb") as _file:
@@ -88,9 +91,6 @@ def main(argv):
     download_path = '{}/{}'.format(savepath, topic)
 
     if not os.path.exists(download_path):
-        os.makedirs(download_path)
-    else:
-        shutil.rmtree(download_path)
         os.makedirs(download_path)
 
     print("Downloading to {}".format(download_path))
