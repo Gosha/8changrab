@@ -13,7 +13,6 @@ from __future__ import print_function
 import sys
 import os
 import urllib2
-import shutil
 from docopt import docopt
 from blessings import Terminal
 from bs4 import BeautifulSoup
@@ -52,7 +51,6 @@ else:
 HDR = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 \
         (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11', 'Accept':
         'text/html,application/xhtml+xml, application/xml; q=0.9,*/*;q=0.8'}
-
 
 def download_image(link, filename):
     """Download LINK to FILENAME if FILENAME doesn't already exist"""
