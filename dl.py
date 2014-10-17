@@ -12,39 +12,44 @@
 from __future__ import print_function
 import sys, os, urllib2, shutil
 from docopt import docopt
-from blessings import Terminal
 from bs4 import BeautifulSoup
 from os.path import expanduser
 VERSION = "8changrab 0.1"
 DEFAULT_SAVE_PATH = '{}/8chan'.format(expanduser("~"))
 
-TERM = Terminal()
-if TERM.is_a_tty:
-    def update_progress(current, total):
-        """Create a pretty progress bar by constantly updating one line"""
-        progress_bar_length = 40
+def pretty_update_progress(current, total):
+    """Create a pretty progress bar by constantly updating one line"""
+    progress_bar_length = 40
 
-        percent_finished = current/float(total) # 0 -> 1
+    percent_finished = current/float(total) # 0 -> 1
 
-        fillers = int(percent_finished * progress_bar_length)
-        empty_fillers = progress_bar_length - fillers
+    fillers = int(percent_finished * progress_bar_length)
+    empty_fillers = progress_bar_length - fillers
 
-        progress_bar = "["
-        progress_bar += fillers*"="
-        progress_bar += ">"
-        progress_bar += empty_fillers*" "
-        progress_bar += "]"
+    progress_bar = "["
+    progress_bar += fillers*"="
+    progress_bar += ">"
+    progress_bar += empty_fillers*" "
+    progress_bar += "]"
 
-        term = Terminal()
-        with term.location(x=0):
-            print("{} {}/{}".format(progress_bar, current, total), end="")
-        sys.stdout.flush()
-else:
-    # Use dumb output on non-tty
-    def update_progress(current, total):
-        """Simple update progress"""
-        sys.stdout.write("|")
-        sys.stdout.flush()
+    term = Terminal()
+    with term.location(x=0):
+        print("{} {}/{}".format(progress_bar, current, total), end="")
+    sys.stdout.flush()
+
+def simple_update_progress(current, total):
+    """Simple update progress"""
+    sys.stdout.write("|")
+    sys.stdout.flush()
+
+# Use dumb output on non-tty by default
+update_progress = simple_update_progress
+try:
+    # If available, use pretty terminal output
+    from blessings import Terminal
+    if TERM.is_a_tty:
+        update_progress = pretty_update_progress
+except ImportError: pass
 
 HDR = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
