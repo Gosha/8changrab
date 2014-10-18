@@ -10,10 +10,15 @@
 -v --version  Show version
 """
 from __future__ import print_function
-import sys, os, urllib2, shutil
+import sys
+import os
+import urllib2 
+import shutil
 from docopt import docopt
 from bs4 import BeautifulSoup
 from os.path import expanduser
+from threading import Thread
+
 VERSION = "8changrab 0.1"
 DEFAULT_SAVE_PATH = '{}/8chan'.format(expanduser("~"))
 
@@ -107,8 +112,10 @@ def main(argv):
         for link in fileinfo.find_all('a'):
             fileinfo = link.get('href')
             download_link = 'https://8chan.co%s' % fileinfo
-            download_image(download_link, '%s/%s'
-                           %(download_path, link.string))
+            thread = Thread(target = download_image, args =(download_link, '%s/%s'%(download_path, link.string)))
+	    thread.start()
+	   # download_image(download_link, '%s/%s'
+            #               %(download_path, link.string))
             update_progress(current_fileinfo, fileinfos_count)
         current_fileinfo += 1
     print()
@@ -116,3 +123,4 @@ def main(argv):
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
+
