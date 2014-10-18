@@ -21,7 +21,7 @@ from os.path import expanduser
 from multiprocessing import Pool
 from multiprocessing import Value
 
-VERSION = "8changrab 0.1"
+VERSION = "8changrab 0.2"
 DEFAULT_SAVE_PATH = '{}/8chan'.format(expanduser("~"))
 
 def pretty_update_progress(current, total):
