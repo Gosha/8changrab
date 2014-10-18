@@ -22,7 +22,7 @@ done with pip or easy_install:
 ###Usage:
 
 ```
-dl.py [--options] [-s SUBJECT] [options] THREAD
+dl.py [-s SUBJECT] [options] THREAD
 
 -d --directory SAVEPATH  Save images to a directory in SAVEPATH
 -s --subject SUBJECT     If set, don't ask for folder name, but directly save
