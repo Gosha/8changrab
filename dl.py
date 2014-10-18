@@ -17,7 +17,8 @@ import shutil
 from docopt import docopt
 from bs4 import BeautifulSoup
 from os.path import expanduser
-from threading import Thread
+from multiprocessing import Pool
+from multiprocessing import Value
 
 VERSION = "8changrab 0.1"
 DEFAULT_SAVE_PATH = '{}/8chan'.format(expanduser("~"))
@@ -66,11 +67,25 @@ def download_image(link, filename):
     if os.path.exists(filename):
         return
 
-    req = urllib2.Request(link, headers=HDR)
-    response = urllib2.urlopen(req)
-    with open(filename, "wb") as _file:
-        _file.write(response.read())
-        _file.close()
+    try:
+        req = urllib2.Request(link, headers=HDR)
+        response = urllib2.urlopen(req)
+        with open(filename, "wb") as _file:
+            _file.write(response.read())
+            _file.close()
+    except KeyboardInterrupt:
+        # Remove unfinished download
+        os.remove(filename)
+
+def download_and_update_progress(image):
+    """Spawned as a separate process to download IMAGE"""
+    try:
+        link, filename = image
+        download_image(link, filename)
+        with COUNTER.get_lock():
+            COUNTER.value += 1
+            update_progress(COUNTER.value, TOTAL_COUNT.value)
+    except KeyboardInterrupt: pass
 
 def main(argv):
     """Grabs images from an 8chan thread"""
@@ -107,18 +122,38 @@ def main(argv):
     print("Downloading to {}".format(download_path))
 
     fileinfos = soup.find_all(attrs={"class": "fileinfo"})
-    fileinfos_count = len(fileinfos)
-    current_fileinfo = 1
+
+    # Global values used in download_and_update_progress()
+    global TOTAL_COUNT
+    TOTAL_COUNT = Value('i', 0)
+    global COUNTER
+    COUNTER = Value('i', 0)
+
+    TOTAL_COUNT.value = len(fileinfos)
+
+    # Create a list of images to download
+    downloads = []
     for fileinfo in fileinfos:
         for link in fileinfo.find_all('a'):
             fileinfo = link.get('href')
             download_link = 'https://8chan.co%s' % fileinfo
-            thread = Thread(target = download_image, args =(download_link, '%s/%s'%(download_path, link.string)))
-	    thread.start()
-	   # download_image(download_link, '%s/%s'
-            #               %(download_path, link.string))
-            update_progress(current_fileinfo, fileinfos_count)
-        current_fileinfo += 1
+            downloads.append((download_link,'%s/%s'%(download_path, link.string)))
+
+    # Use a pool of processes to download the images in the list
+    pool = Pool(10)
+    p = pool.map_async(download_and_update_progress, downloads)
+
+    # Wait for downloads to complete
+    try:
+        # Wow. Python is great. I *ABSOLUTELY ADORE* python.
+        results = p.get(0xFFFF)
+    except KeyboardInterrupt:
+        print("Aborting")
+        pool.terminate()
+        pool.join()
+    else:
+        pool.close()
+        pool.join()
     print()
     return 0
 
