@@ -12,7 +12,7 @@
 from __future__ import print_function
 import sys
 import os
-import urllib2 
+import urllib2
 import shutil
 from docopt import docopt
 from bs4 import BeautifulSoup
@@ -52,6 +52,7 @@ update_progress = simple_update_progress
 try:
     # If available, use pretty terminal output
     from blessings import Terminal
+    TERM = Terminal()
     if TERM.is_a_tty:
         update_progress = pretty_update_progress
 except ImportError: pass
