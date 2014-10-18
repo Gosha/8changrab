@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-"""Usage: dl.py [-h|--help] [-s SUBJECT] [-d SAVEPATH] THREAD
+"""Usage: dl.py [--options] [-s SUBJECT] [options] THREAD
 
 -d --directory SAVEPATH  Save images to a directory in SAVEPATH
 -s --subject SUBJECT     If set, don't ask for folder name, but directly save
                          in SUBJECT. If not set 8changrab tries the subject
                          of the thread, and asks otherwise.
+--workers=<num>          # of processes to spawn [default: 10]
 
 -h --help     Show this
 -v --version  Show version
@@ -114,6 +115,8 @@ def main(argv):
         else:
             topic = raw_input('Please specify folder name: ')
 
+    workers = int(args['--workers'])
+
     download_path = '{}/{}'.format(savepath, topic)
 
     if not os.path.exists(download_path):
@@ -140,7 +143,7 @@ def main(argv):
             downloads.append((download_link,'%s/%s'%(download_path, link.string)))
 
     # Use a pool of processes to download the images in the list
-    pool = Pool(10)
+    pool = Pool(workers)
     p = pool.map_async(download_and_update_progress, downloads)
 
     # Wait for downloads to complete
