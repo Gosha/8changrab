@@ -10,47 +10,50 @@
 -v --version  Show version
 """
 from __future__ import print_function
-import sys
-import os
-import urllib2
+import sys, os, urllib2, shutil
 from docopt import docopt
-from blessings import Terminal
 from bs4 import BeautifulSoup
 from os.path import expanduser
 VERSION = "8changrab 0.1"
 DEFAULT_SAVE_PATH = '{}/8chan'.format(expanduser("~"))
 
-TERM = Terminal()
-if TERM.is_a_tty:
-    def update_progress(current, total):
-        """Create a pretty progress bar by constantly updating one line"""
-        progress_bar_length = 40
+def pretty_update_progress(current, total):
+    """Create a pretty progress bar by constantly updating one line"""
+    progress_bar_length = 40
 
-        percent_finished = current/float(total)  # 0 -> 1
+    percent_finished = current/float(total) # 0 -> 1
 
-        fillers = int(percent_finished * progress_bar_length)
-        empty_fillers = progress_bar_length - fillers
+    fillers = int(percent_finished * progress_bar_length)
+    empty_fillers = progress_bar_length - fillers
 
-        progress_bar = "["
-        progress_bar += fillers*"="
-        progress_bar += ">"
-        progress_bar += empty_fillers*" "
-        progress_bar += "]"
+    progress_bar = "["
+    progress_bar += fillers*"="
+    progress_bar += ">"
+    progress_bar += empty_fillers*" "
+    progress_bar += "]"
 
-        term = Terminal()
-        with term.location(x=0):
-            print("{} {}/{}".format(progress_bar, current, total), end="")
-        sys.stdout.flush()
-else:
-    # Use dumb output on non-tty
-    def update_progress(current, total):
-        """Simple update progress"""
-        sys.stdout.write("|")
-        sys.stdout.flush()
+    term = Terminal()
+    with term.location(x=0):
+        print("{} {}/{}".format(progress_bar, current, total), end="")
+    sys.stdout.flush()
 
-HDR = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 \
-        (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11', 'Accept':
-        'text/html,application/xhtml+xml, application/xml; q=0.9,*/*;q=0.8'}
+def simple_update_progress(current, total):
+    """Simple update progress"""
+    sys.stdout.write("|")
+    sys.stdout.flush()
+
+# Use dumb output on non-tty by default
+update_progress = simple_update_progress
+try:
+    # If available, use pretty terminal output
+    from blessings import Terminal
+    if TERM.is_a_tty:
+        update_progress = pretty_update_progress
+except ImportError: pass
+
+HDR = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
+       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    }
 
 def download_image(link, filename):
     """Download LINK to FILENAME if FILENAME doesn't already exist"""
@@ -63,7 +66,6 @@ def download_image(link, filename):
         _file.write(response.read())
         _file.close()
 
-
 def main(argv):
     """Grabs images from an 8chan thread"""
     args = docopt(__doc__, argv=argv[1:], version=VERSION)
@@ -71,7 +73,7 @@ def main(argv):
     url = args['THREAD']
     savepath = args['--directory'] or DEFAULT_SAVE_PATH
 
-    if "8chan.co" not in url:
+    if not "8chan.co" in url:
         print("Not an 8chan URL")
         return 1
 
@@ -106,7 +108,7 @@ def main(argv):
             fileinfo = link.get('href')
             download_link = 'https://8chan.co%s' % fileinfo
             download_image(download_link, '%s/%s'
-                           % (download_path, link.string))
+                           %(download_path, link.string))
             update_progress(current_fileinfo, fileinfos_count)
         current_fileinfo += 1
     print()
