@@ -22,12 +22,13 @@ done with pip or easy_install:
 ###Usage:
 
 ```
-dl.py [-h|--help] [-s SUBJECT] [-d SAVEPATH] THREAD
+dl.py [-s SUBJECT] [options] THREAD
 
 -d --directory SAVEPATH  Save images to a directory in SAVEPATH
 -s --subject SUBJECT     If set, don't ask for folder name, but directly save
                          in SUBJECT. If not set 8changrab tries the subject
                          of the thread, and asks otherwise.
+--workers=<num>          # of processes to spawn [default: 10]
 
 -h --help     Show this
 -v --version  Show version
