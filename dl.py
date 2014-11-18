@@ -138,8 +138,7 @@ def main(argv):
     downloads = []
     for fileinfo in fileinfos:
         for link in fileinfo.find_all('a'):
-            fileinfo = link.get('href')
-            download_link = 'https://8chan.co%s' % fileinfo
+            download_link = link.get('href')
             downloads.append((download_link,'%s/%s'%(download_path, link.string)))
 
     # Use a pool of processes to download the images in the list
